@@ -1,11 +1,19 @@
-import { PlayIcon } from "@radix-ui/react-icons";
-import { Avatar, Box, Flex, type FlexProps, Inset } from "@radix-ui/themes";
+import { Cross2Icon, PlayIcon } from "@radix-ui/react-icons";
+import {
+	Avatar,
+	Flex,
+	type FlexProps,
+	IconButton,
+	Inset,
+	Text,
+} from "@radix-ui/themes";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import classNames from "classnames";
 import { useAtomValue } from "jotai";
 import { type FC, type HTMLProps, useEffect, useRef } from "react";
-import { Trans } from "react-i18next";
-import { queueManagerAtom } from "../../states/appAtoms.ts";
+import { Trans, useTranslation } from "react-i18next";
+import { isDarkThemeAtom, queueManagerAtom } from "../../states/appAtoms.ts";
 import type { Song } from "../../utils/db-client.ts";
 import {
 	queueCurrentIndexAtom,
@@ -19,41 +27,68 @@ const PlaylistSongItem: FC<
 		index: number;
 	} & HTMLProps<HTMLDivElement>
 > = ({ song, className, index, ...props }) => {
+	const { t } = useTranslation();
 	const playlistIndex = useAtomValue(queueCurrentIndexAtom);
 	const queueManager = useAtomValue(queueManagerAtom);
 
-	const cover = song.coverPath 
-		? (song.coverPath.startsWith("http://") || song.coverPath.startsWith("https://") 
-			? song.coverPath 
-			: convertFileSrc(song.coverPath))
+	const cover = song.coverPath
+		? song.coverPath.startsWith("http://") || song.coverPath.startsWith("https://")
+			? song.coverPath
+			: convertFileSrc(song.coverPath)
 		: "";
 	const name = song.songName || "未知歌曲";
 	const artists = song.songArtists || "未知艺术家";
 
 	return (
 		<div className={className} {...props}>
-			<button
-				type="button"
-				className={styles.playlistSongItem}
-				onDoubleClick={() => {
-					queueManager?.playAt(index);
-				}}
-				aria-label={`播放 ${name} - ${artists}`}
+			<div
+				className={classNames(
+					styles.playlistSongItem,
+					playlistIndex === index && styles.playing,
+				)}
 			>
-				<Avatar size="4" fallback={<div />} src={cover} />
-				<div className={styles.musicInfo}>
-					<div className={styles.name}>{name}</div>
-					<div className={styles.artists}>{artists}</div>
-				</div>
-				{playlistIndex === index && <PlayIcon />}
-			</button>
+				<button
+					type="button"
+					className={styles.songButton}
+					onDoubleClick={() => {
+						queueManager?.playAt(index);
+					}}
+					aria-label={`播放 ${name} - ${artists}`}
+				>
+					<Avatar size="4" fallback={<div />} src={cover} />
+					<div className={styles.musicInfo}>
+						<div className={styles.name}>{name}</div>
+						<div className={styles.artists}>{artists}</div>
+					</div>
+					{playlistIndex === index && <PlayIcon />}
+				</button>
+				<IconButton
+					className={styles.removeButton}
+					variant="ghost"
+					color="gray"
+					size="1"
+					title={t("playbar.playlist.removeSong", "从播放队列中移除")}
+					aria-label={t("playbar.playlist.removeSong", "从播放队列中移除")}
+					onClick={() => {
+						queueManager?.removeSong(song.id);
+					}}
+				>
+					<Cross2Icon />
+				</IconButton>
+			</div>
 		</div>
 	);
 };
 
-export const NowPlaylistCard: FC<FlexProps> = (props) => {
+export const NowPlaylistCard: FC<FlexProps & { onClose?: () => void }> = ({
+	onClose,
+	className,
+	...props
+}) => {
+	const { t } = useTranslation();
 	const playlist = useAtomValue(queuePlaylistAtom);
 	const playlistIndex = useAtomValue(queueCurrentIndexAtom);
+	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const playlistContainerRef = useRef<HTMLDivElement>(null);
 
 	const rowVirtualizer = useVirtualizer({
@@ -78,17 +113,32 @@ export const NowPlaylistCard: FC<FlexProps> = (props) => {
 			direction="column"
 			maxWidth="400px"
 			maxHeight="500px"
+			data-amll-theme={isDarkTheme ? "dark" : "light"}
+			className={classNames(styles.card, className)}
 			style={{
 				height: "50vh",
 				width: "max(10vw, 50vh)",
 				backdropFilter: "blur(1em)",
-				backgroundColor: "var(--black-a8)",
 			}}
 			{...props}
 		>
-			<Box py="3" px="4">
-				<Trans i18nKey="playbar.playlist.title">当前播放列表</Trans>
-			</Box>
+			<Flex py="3" px="4" align="center" gap="2">
+				<Text size="2" weight="medium" style={{ flexGrow: 1 }}>
+					<Trans i18nKey="playbar.playlist.title">当前播放列表</Trans>
+				</Text>
+				{onClose && (
+					<IconButton
+						variant="ghost"
+						color="gray"
+						size="1"
+						title={t("playbar.playlist.close", "关闭播放列表")}
+						aria-label={t("playbar.playlist.close", "关闭播放列表")}
+						onClick={onClose}
+					>
+						<Cross2Icon />
+					</IconButton>
+				)}
+			</Flex>
 			<Inset
 				clip="padding-box"
 				side="bottom"

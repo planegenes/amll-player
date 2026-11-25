@@ -89,7 +89,10 @@ export const NowPlayingBar: FC = () => {
 					right="0"
 					bottom="calc(var(--amll-player-playbar-bottom) + var(--space-3))"
 				>
-					<NowPlaylistCard className={classNames(styles.playlistCard)} />
+					<NowPlaylistCard
+						className={classNames(styles.playlistCard)}
+						onClose={() => setPlaylistOpened(false)}
+					/>
 				</Flex>
 			)}
 			<Flex

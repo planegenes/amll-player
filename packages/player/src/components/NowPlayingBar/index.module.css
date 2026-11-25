@@ -10,7 +10,6 @@
 .playlistCard {
 	border-radius: var(--radius-4);
 	border: solid 1px var(--gray-6);
-	backdrop-filter: blur(5vh) brightness(0.5);
 	transition: transform 0.2s ease;
 	max-width: 400px;
 	max-height: 50vh;
