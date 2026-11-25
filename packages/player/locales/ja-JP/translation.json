@@ -74,7 +74,8 @@
 	},
 	"bottom_lyric": {
 		"lyricAuthor": "歌词作者：",
-		"songWriter": "创作者："
+		"songWriter": "创作者：",
+		"customInfoSeparator": "："
 	},
 	"common": {
 		"dialog": {
@@ -398,7 +399,35 @@
 					"label": "启用音译歌词与翻译歌词互换"
 				},
 				"enableLyricTranslationLine": "显示翻译歌词",
-				"subtitle": "歌词内容"
+				"subtitle": "歌词内容",
+				"customBottomInfo": {
+					"label": "カスタム表示情報",
+					"description": "下部情報の下にカスタム表示を追加します。各項目は 1 行ずつ表示されます",
+					"add": "項目を追加",
+					"empty": "カスタム情報はまだありません",
+					"remove": "この項目を削除",
+					"type": {
+						"text": "通常テキスト",
+						"keyValue": "キーと値"
+					},
+					"key": {
+						"placeholder": "キー"
+					},
+					"value": {
+						"placeholder": "値"
+					}
+				},
+				"romanizationMatch": {
+					"subtitle": "単語単位のルビ・ローマ字表記の対応",
+					"fastTrackTolerance": {
+						"label": "ファストトラック許容値",
+						"description": "メイン歌詞の文字とローマ字表記の音節の開始時間差がこの値以内なら直接対応させます。単位はミリ秒。大きいほど緩くなります。既定値は 2。"
+					},
+					"minIou": {
+						"label": "最小重複率",
+						"description": "ファストトラックで対応しなかった場合、時間区間の重複率が最も高い音節を使用しますが、重複率がこの値以上の場合に限ります。小さいほど対応しやすくなりますが、ずれる可能性があります。既定値は 10%。"
+					}
+				}
 			},
 			"lyricFont": {
 				"fontFamily": {
@@ -469,7 +498,11 @@
 					"description": "可以看到帧率、帧时间、内存占用（仅 Chromuim 系）等信息，对性能影响较小。",
 					"label": "显示性能统计信息"
 				},
-				"subtitle": "杂项"
+				"subtitle": "杂项",
+				"pauseAfterPlayEnd": {
+					"label": "再生終了後に一時停止",
+					"description": "曲の再生が終了したら次の曲に切り替えず、現在の曲のまま一時停止します。この設定はリピートモードより優先されます。"
+				}
 			},
 			"smtc": {
 				"enableMediaControls": {
@@ -560,7 +593,9 @@
 	},
 	"playbar": {
 		"playlist": {
-			"title": "当前播放列表"
+			"title": "当前播放列表",
+			"close": "プレイリストを閉じる",
+			"removeSong": "再生キューから削除"
 		}
 	},
 	"settings": {

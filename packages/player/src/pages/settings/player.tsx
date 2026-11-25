@@ -40,6 +40,7 @@ import {
 	Card,
 	Flex,
 	Grid,
+	IconButton,
 	Select,
 	Separator,
 	Slider,
@@ -54,6 +55,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { platform } from "@tauri-apps/plugin-os";
+import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { atom, useAtom, useAtomValue, type WritableAtom } from "jotai";
 import { loadable } from "jotai/utils";
 import React, {
@@ -68,22 +70,31 @@ import React, {
 } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { uid } from "uid";
 import { router } from "../../router.tsx";
 import {
 	availableLanguagesAtom,
 	BottomLyricDisplayMode,
 	bottomLyricDisplayModeAtom,
+	CustomBottomInfoType,
+	type CustomBottomInfoItem,
+	customBottomInfoItemsAtom,
 	DarkMode,
 	darkModeAtom,
 	enableAlwaysOnTopAtom,
 	enableMediaControlsAtom,
 	enableTaskbarLyricAtom,
 	languageAtom,
+	MusicContextMode,
+	musicContextModeAtom,
 	optimizeCleanUnintentionalOverlapsAtom,
 	optimizeNormalizeSpacesAtom,
 	optimizeResetLineTimestampsAtom,
 	optimizeSyncMainAndBackgroundLinesAtom,
 	optimizeTryAdvanceStartTimeAtom,
+	pauseAfterPlayEndAtom,
+	romanizationFastTrackToleranceMsAtom,
+	romanizationMinIouPercentAtom,
 	showStatJSFrameAtom,
 	taskbarLyricAlignSettingAtom,
 	taskbarLyricModeSettingAtom,
@@ -149,6 +160,72 @@ const SubTitle: FC<PropsWithChildren<TextProps>> = ({ children, ...props }) => {
 		<Text weight="bold" size="7" my="4" as="div" {...props}>
 			{children}
 		</Text>
+	);
+};
+
+const SubHeading: FC<PropsWithChildren<TextProps>> = ({
+	children,
+	...props
+}) => {
+	return (
+		<Text weight="bold" size="4" mt="4" mb="2" as="div" {...props}>
+			{children}
+		</Text>
+	);
+};
+
+/** 同时提供滑块与数字输入框的设置项，两者保持同步 */
+const SliderNumberSettings: FC<{
+	configAtom: WritableAtom<number, [number], void>;
+	label: string;
+	description?: string;
+	min: number;
+	max: number;
+	step?: number;
+	suffix?: string;
+}> = ({ configAtom, label, description, min, max, step = 1, suffix }) => {
+	const [value, setValue] = useAtom(configAtom);
+	const clamped = Math.min(max, Math.max(min, value));
+	const [draft, setDraft] = useState(String(clamped));
+
+	useEffect(() => {
+		setDraft(String(clamped));
+	}, [clamped]);
+
+	return (
+		<SettingEntry label={label} description={description}>
+			<Flex align="center" gap="3" style={{ minWidth: "20em" }}>
+				<Slider
+					value={[clamped]}
+					min={min}
+					max={max}
+					step={step}
+					style={{ flexGrow: 1, minWidth: "8em" }}
+					onValueChange={([v]) => setValue(v)}
+				/>
+				<TextField.Root
+					type="number"
+					min={min}
+					max={max}
+					step={step}
+					value={draft}
+					style={{ width: "6em" }}
+					onChange={(e) => {
+						const raw = e.currentTarget.value;
+						setDraft(raw);
+						const next = e.currentTarget.valueAsNumber;
+						if (Number.isNaN(next)) return;
+						setValue(Math.min(max, Math.max(min, next)));
+					}}
+					aria-label={label}
+				/>
+				{suffix && (
+					<Text size="2" color="gray">
+						{suffix}
+					</Text>
+				)}
+			</Flex>
+		</SettingEntry>
 	);
 };
 
@@ -388,6 +465,157 @@ const GeneralSettings = () => {
 	);
 };
 
+const CustomBottomInfoSettings: FC = () => {
+	const { t } = useTranslation();
+	const [items, setItems] = useAtom(customBottomInfoItemsAtom);
+
+	const itemTypeMenu = useMemo(
+		() => [
+			{
+				label: t(
+					"page.settings.lyricContent.customBottomInfo.type.text",
+					"普通文本",
+				),
+				value: CustomBottomInfoType.Text,
+			},
+			{
+				label: t(
+					"page.settings.lyricContent.customBottomInfo.type.keyValue",
+					"键值对",
+				),
+				value: CustomBottomInfoType.KeyValue,
+			},
+		],
+		[t],
+	);
+
+	const updateItem = (id: string, patch: Partial<CustomBottomInfoItem>) => {
+		setItems((prev) =>
+			prev.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+		);
+	};
+
+	const removeItem = (id: string) => {
+		setItems((prev) => prev.filter((item) => item.id !== id));
+	};
+
+	const addItem = () => {
+		setItems((prev) => [
+			...prev,
+			{
+				id: uid(16),
+				type: CustomBottomInfoType.Text,
+				key: "",
+				value: "",
+			},
+		]);
+	};
+
+	return (
+		<Card mt="2">
+			<Flex direction="row" align="center" gap="4" wrap="wrap">
+				<Flex direction="column" flexGrow="1">
+					<Text as="div">
+						<Trans i18nKey="page.settings.lyricContent.customBottomInfo.label">
+							自定义显示信息
+						</Trans>
+					</Text>
+					<Text as="div" color="gray" size="2" className={styles.desc}>
+						<Trans i18nKey="page.settings.lyricContent.customBottomInfo.description">
+							在底部信息下方追加自定义的显示内容，每一项独占一行
+						</Trans>
+					</Text>
+				</Flex>
+				<Button variant="soft" onClick={addItem}>
+					<PlusIcon />
+					{t(
+						"page.settings.lyricContent.customBottomInfo.add",
+						"添加一项",
+					)}
+				</Button>
+			</Flex>
+			{items.length === 0 && (
+				<Text as="div" color="gray" size="2" mt="2" className={styles.desc}>
+					<Trans i18nKey="page.settings.lyricContent.customBottomInfo.empty">
+						尚未添加任何自定义信息
+					</Trans>
+				</Text>
+			)}
+			{items.map((item) => (
+				<Box
+					key={item.id}
+					mt="2"
+					p="2"
+					style={{
+						border: "1px solid var(--gray-a5)",
+						borderRadius: "var(--radius-3)",
+					}}
+				>
+					<Flex direction="row" align="center" gap="2" wrap="wrap">
+						<Select.Root
+							value={item.type}
+							onValueChange={(v) =>
+								updateItem(item.id, { type: v as CustomBottomInfoType })
+							}
+						>
+							<Select.Trigger />
+							<Select.Content>
+								{itemTypeMenu.map((menuItem) => (
+									<Select.Item key={menuItem.value} value={menuItem.value}>
+										{menuItem.label}
+									</Select.Item>
+								))}
+							</Select.Content>
+						</Select.Root>
+						<Box flexGrow="1" />
+						<IconButton
+							variant="ghost"
+							color="gray"
+							title={t(
+								"page.settings.lyricContent.customBottomInfo.remove",
+								"删除此项",
+							)}
+							aria-label={t(
+								"page.settings.lyricContent.customBottomInfo.remove",
+								"删除此项",
+							)}
+							onClick={() => removeItem(item.id)}
+						>
+							<TrashIcon />
+						</IconButton>
+					</Flex>
+					<Flex direction="row" align="center" gap="2" mt="2" wrap="wrap">
+						{item.type === CustomBottomInfoType.KeyValue && (
+							<TextField.Root
+								style={{ flex: "1 1 10em", minWidth: "8em" }}
+								placeholder={t(
+									"page.settings.lyricContent.customBottomInfo.key.placeholder",
+									"键名",
+								)}
+								value={item.key}
+								onChange={(e) =>
+									updateItem(item.id, { key: e.currentTarget.value })
+								}
+							/>
+						)}
+						<TextField.Root
+							style={{ flex: "2 1 14em", minWidth: "8em" }}
+							placeholder={t(
+								"page.settings.lyricContent.customBottomInfo.value.placeholder",
+								"内容",
+							)}
+							value={item.value}
+							onChange={(e) =>
+								updateItem(item.id, { value: e.currentTarget.value })
+							}
+						/>
+					</Flex>
+				</Box>
+			))}
+		</Card>
+	);
+};
+
 const LyricContentSettings = () => {
 	const { t } = useTranslation();
 
@@ -467,6 +695,42 @@ const LyricContentSettings = () => {
 				configAtom={enableLyricSwapTransRomanLineAtom}
 			/>
 
+			<SubHeading>
+				<Trans i18nKey="page.settings.lyricContent.romanizationMatch.subtitle">
+					逐字音译匹配
+				</Trans>
+			</SubHeading>
+			<SliderNumberSettings
+				min={0}
+				max={1000}
+				step={1}
+				suffix="ms"
+				label={t(
+					"page.settings.lyricContent.romanizationMatch.fastTrackTolerance.label",
+					"快速通道容差",
+				)}
+				description={t(
+					"page.settings.lyricContent.romanizationMatch.fastTrackTolerance.description",
+					"主歌词字与音译音节的开始时间差在此范围内时直接配对，单位为毫秒。值越大越宽容，默认 2。",
+				)}
+				configAtom={romanizationFastTrackToleranceMsAtom}
+			/>
+			<SliderNumberSettings
+				min={0}
+				max={100}
+				step={1}
+				suffix="%"
+				label={t(
+					"page.settings.lyricContent.romanizationMatch.minIou.label",
+					"最小交并比",
+				)}
+				description={t(
+					"page.settings.lyricContent.romanizationMatch.minIou.description",
+					"快速通道未命中时，按时间区间重合度取最接近的音译音节，重合度需达到此比例才会采用。值越小越容易匹配，但可能错位。默认 10%。",
+				)}
+				configAtom={romanizationMinIouPercentAtom}
+			/>
+
 			<Box height="1em" />
 			<SettingEntry
 				label={t(
@@ -494,6 +758,7 @@ const LyricContentSettings = () => {
 					</Select.Content>
 				</Select.Root>
 			</SettingEntry>
+			<CustomBottomInfoSettings />
 		</>
 	);
 };
@@ -1037,11 +1302,25 @@ const LyricBackgroundSettings = () => {
 
 const OthersSettings = () => {
 	const { t } = useTranslation();
+	const musicContextMode = useAtomValue(musicContextModeAtom);
 	return (
 		<>
 			<SubTitle>
 				<Trans i18nKey="page.settings.others.subtitle">杂项</Trans>
 			</SubTitle>
+			{musicContextMode === MusicContextMode.Local && (
+				<SwitchSettings
+					label={t(
+						"page.settings.others.pauseAfterPlayEnd.label",
+						"播放完毕后暂停",
+					)}
+					description={t(
+						"page.settings.others.pauseAfterPlayEnd.description",
+						"一首歌曲播放结束后不自动切换到下一首，而是停在当前歌曲并暂停播放。此选项优先于循环模式。",
+					)}
+					configAtom={pauseAfterPlayEndAtom}
+				/>
+			)}
 			<SwitchSettings
 				label={t(
 					"page.settings.others.showStatJSFrame.label",

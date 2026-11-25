@@ -74,7 +74,8 @@
 	},
 	"bottom_lyric": {
 		"lyricAuthor": "Lyrics by:",
-		"songWriter": "Written by:"
+		"songWriter": "Written by:",
+		"customInfoSeparator": ": "
 	},
 	"common": {
 		"dialog": {
@@ -400,7 +401,35 @@
 					"label": "Swap Translation and Romanized Translation"
 				},
 				"enableLyricTranslationLine": "Show Translation",
-				"subtitle": "Lyrics"
+				"subtitle": "Lyrics",
+				"customBottomInfo": {
+					"label": "Custom info lines",
+					"description": "Append custom lines below the bottom info, one line per item",
+					"add": "Add item",
+					"empty": "No custom info added yet",
+					"remove": "Remove this item",
+					"type": {
+						"text": "Plain text",
+						"keyValue": "Key-value pair"
+					},
+					"key": {
+						"placeholder": "Key"
+					},
+					"value": {
+						"placeholder": "Value"
+					}
+				},
+				"romanizationMatch": {
+					"subtitle": "Word-level romanization matching",
+					"fastTrackTolerance": {
+						"label": "Fast-track tolerance",
+						"description": "Words whose start time differs from a romanization syllable by no more than this value are paired directly. Unit: milliseconds. Larger is more lenient. Default: 2."
+					},
+					"minIou": {
+						"label": "Minimum overlap ratio",
+						"description": "When the fast track misses, the romanization syllable with the best time overlap is used, but only if the overlap ratio reaches this value. Smaller is more lenient but may misalign. Default: 10%."
+					}
+				}
 			},
 			"lyricFont": {
 				"fontFamily": {
@@ -471,7 +500,11 @@
 					"description": "Show fps, frame time, memory [Chromium only]. Less impact of performance.",
 					"label": "Show performance statics"
 				},
-				"subtitle": "Others"
+				"subtitle": "Others",
+				"pauseAfterPlayEnd": {
+					"label": "Pause after playback",
+					"description": "When a song finishes, stay on the current song and pause instead of switching to the next track. This option takes priority over the repeat mode."
+				}
 			},
 			"smtc": {
 				"enableMediaControls": {
@@ -562,7 +595,9 @@
 	},
 	"playbar": {
 		"playlist": {
-			"title": "Current Playlist"
+			"title": "Current Playlist",
+			"close": "Close playlist",
+			"removeSong": "Remove from play queue"
 		}
 	},
 	"settings": {

@@ -74,7 +74,8 @@
 	},
 	"bottom_lyric": {
 		"lyricAuthor": "歌词作者：",
-		"songWriter": "创作者："
+		"songWriter": "创作者：",
+		"customInfoSeparator": "："
 	},
 	"common": {
 		"dialog": {
@@ -400,7 +401,35 @@
 					"label": "启用音译歌词与翻译歌词互换"
 				},
 				"enableLyricTranslationLine": "显示翻译歌词",
-				"subtitle": "歌词内容"
+				"subtitle": "歌词内容",
+				"customBottomInfo": {
+					"label": "自定义显示信息",
+					"description": "在底部信息下方追加自定义的显示内容，每一项独占一行",
+					"add": "添加一项",
+					"empty": "尚未添加任何自定义信息",
+					"remove": "删除此项",
+					"type": {
+						"text": "普通文本",
+						"keyValue": "键值对"
+					},
+					"key": {
+						"placeholder": "键名"
+					},
+					"value": {
+						"placeholder": "内容"
+					}
+				},
+				"romanizationMatch": {
+					"subtitle": "逐字音译匹配",
+					"fastTrackTolerance": {
+						"label": "快速通道容差",
+						"description": "主歌词字与音译音节的开始时间差在此范围内时直接配对，单位为毫秒。值越大越宽容，默认 2。"
+					},
+					"minIou": {
+						"label": "最小交并比",
+						"description": "快速通道未命中时，按时间区间重合度取最接近的音译音节，重合度需达到此比例才会采用。值越小越容易匹配，但可能错位。默认 10%。"
+					}
+				}
 			},
 			"lyricFont": {
 				"fontFamily": {
@@ -471,7 +500,11 @@
 					"description": "可以看到帧率、帧时间、内存占用（仅 Chromuim 系）等信息，对性能影响较小。",
 					"label": "显示性能统计信息"
 				},
-				"subtitle": "杂项"
+				"subtitle": "杂项",
+				"pauseAfterPlayEnd": {
+					"label": "播放完毕后暂停",
+					"description": "一首歌曲播放结束后不自动切换到下一首，而是停在当前歌曲并暂停播放。此选项优先于循环模式。"
+				}
 			},
 			"smtc": {
 				"enableMediaControls": {
@@ -562,7 +595,9 @@
 	},
 	"playbar": {
 		"playlist": {
-			"title": "当前播放列表"
+			"title": "当前播放列表",
+			"close": "关闭播放列表",
+			"removeSong": "从播放队列中移除"
 		}
 	},
 	"settings": {

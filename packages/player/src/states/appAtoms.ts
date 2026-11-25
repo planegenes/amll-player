@@ -101,6 +101,17 @@ export const showStatJSFrameAtom = atomWithStorage(
 	false,
 );
 
+/**
+ * 播放完毕后暂停
+ *
+ * 开启后一首歌曲自然播放结束时不会切换到下一首，而是停留在当前歌曲并暂停播放；
+ * 该行为优先于循环模式，关闭后恢复原有的循环模式行为。
+ */
+export const pauseAfterPlayEndAtom = atomWithStorage(
+	"amll-player.pauseAfterPlayEnd",
+	false,
+);
+
 export const autoDarkModeAtom = atom(true);
 
 export const isDarkThemeAtom = atom(
@@ -165,6 +176,51 @@ export const bottomLyricDisplayModeAtom =
 export const currentLyricAuthorsAtom = atom<string[]>([]);
 
 export const currentSongWritersAtom = atom<string[]>([]);
+
+/** 自定义显示信息的类型 */
+export enum CustomBottomInfoType {
+	/** 普通文本，仅显示一段内容 */
+	Text = "text",
+	/** 键值对，显示为「键名：内容」 */
+	KeyValue = "key-value",
+}
+
+/** 一条自定义显示信息 */
+export interface CustomBottomInfoItem {
+	/** 唯一标识，仅用于列表编辑与渲染 */
+	id: string;
+	type: CustomBottomInfoType;
+	/** 键值对类型的键名，普通文本类型下不显示 */
+	key: string;
+	/** 显示内容 */
+	value: string;
+}
+
+/** 追加在歌词底部信息下方的自定义显示信息，每一项独占一行 */
+export const customBottomInfoItemsAtom = atomWithStorage<CustomBottomInfoItem[]>(
+	"amll-player.customBottomInfoItems",
+	[],
+);
+
+/**
+ * 逐字音译匹配：快速通道容差（毫秒）
+ *
+ * 主歌词字与音译音节的开始时间差在此范围内时直接配对。默认 2。
+ */
+export const romanizationFastTrackToleranceMsAtom = atomWithStorage(
+	"amll-player.romanizationFastTrackToleranceMs",
+	2,
+);
+
+/**
+ * 逐字音译匹配：最小交并比（百分比，0 - 100）
+ *
+ * 快速通道未命中时按时间区间重合度取最接近的音译音节，重合度需达到此比例才采用。默认 10。
+ */
+export const romanizationMinIouPercentAtom = atomWithStorage(
+	"amll-player.romanizationMinIouPercent",
+	10,
+);
 
 export const queueManagerAtom = atom<PlayQueueManager | null>(null);
 

@@ -74,7 +74,8 @@
 	},
 	"bottom_lyric": {
 		"lyricAuthor": "歌词作者：",
-		"songWriter": "创作者："
+		"songWriter": "创作者：",
+		"customInfoSeparator": ": "
 	},
 	"common": {
 		"dialog": {
@@ -398,7 +399,35 @@
 					"label": "Bật chức năng hoán đổi giữa lời bài hát và lời dịch"
 				},
 				"enableLyricTranslationLine": "Hiển thị lời bài hát dịch",
-				"subtitle": "Nội dung lời bài hát"
+				"subtitle": "Nội dung lời bài hát",
+				"customBottomInfo": {
+					"label": "Thông tin hiển thị tùy chỉnh",
+					"description": "Thêm nội dung hiển thị tùy chỉnh bên dưới thông tin cuối, mỗi mục một dòng",
+					"add": "Thêm một mục",
+					"empty": "Chưa thêm thông tin tùy chỉnh nào",
+					"remove": "Xóa mục này",
+					"type": {
+						"text": "Văn bản thường",
+						"keyValue": "Cặp khóa - giá trị"
+					},
+					"key": {
+						"placeholder": "Tên khóa"
+					},
+					"value": {
+						"placeholder": "Nội dung"
+					}
+				},
+				"romanizationMatch": {
+					"subtitle": "Khớp phiên âm theo từng chữ",
+					"fastTrackTolerance": {
+						"label": "Dung sai khớp nhanh",
+						"description": "Chữ của lời gốc và âm tiết phiên âm có thời điểm bắt đầu lệch nhau trong khoảng này sẽ được ghép trực tiếp. Đơn vị: mili giây. Giá trị càng lớn càng dễ khớp. Mặc định là 2."
+					},
+					"minIou": {
+						"label": "Tỷ lệ trùng lặp tối thiểu",
+						"description": "Khi khớp nhanh không thành công, âm tiết phiên âm có thời lượng trùng lặp lớn nhất sẽ được dùng, nhưng chỉ khi tỷ lệ trùng lặp đạt giá trị này. Giá trị càng nhỏ càng dễ khớp nhưng có thể lệch. Mặc định là 10%."
+					}
+				}
 			},
 			"lyricFont": {
 				"fontFamily": {
@@ -469,7 +498,11 @@
 					"description": "Có thể xem thông tin chiếm dụng bộ nhớ (chỉ dành cho các hệ thống Chromium) và các thông tin khác, ảnh hưởng đến hiệu suất khá nhỏ.",
 					"label": "Hiển thị thông tin thống kê hiệu suất"
 				},
-				"subtitle": "Các tùy chọn khác"
+				"subtitle": "Các tùy chọn khác",
+				"pauseAfterPlayEnd": {
+					"label": "Tạm dừng sau khi phát xong",
+					"description": "Khi một bài hát phát xong sẽ không chuyển sang bài tiếp theo mà dừng lại ở bài hiện tại và tạm dừng phát. Tùy chọn này được ưu tiên hơn chế độ lặp."
+				}
 			},
 			"smtc": {
 				"enableMediaControls": {
@@ -560,7 +593,9 @@
 	},
 	"playbar": {
 		"playlist": {
-			"title": "当前播放列表"
+			"title": "当前播放列表",
+			"close": "Đóng danh sách phát",
+			"removeSong": "Xóa khỏi hàng đợi phát"
 		}
 	},
 	"settings": {

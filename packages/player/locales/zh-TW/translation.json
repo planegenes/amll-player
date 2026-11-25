@@ -74,7 +74,8 @@
 	},
 	"bottom_lyric": {
 		"lyricAuthor": "歌词作者：",
-		"songWriter": "创作者："
+		"songWriter": "创作者：",
+		"customInfoSeparator": "："
 	},
 	"common": {
 		"dialog": {
@@ -398,7 +399,35 @@
 					"label": "啟用音譯歌詞与翻譯歌詞互換"
 				},
 				"enableLyricTranslationLine": "顯示翻譯歌詞",
-				"subtitle": "歌詞內容"
+				"subtitle": "歌詞內容",
+				"customBottomInfo": {
+					"label": "自訂顯示訊息",
+					"description": "在底部訊息下方追加自訂的顯示內容，每一項獨佔一行",
+					"add": "新增一項",
+					"empty": "尚未新增任何自訂訊息",
+					"remove": "刪除此項",
+					"type": {
+						"text": "普通文字",
+						"keyValue": "鍵值對"
+					},
+					"key": {
+						"placeholder": "鍵名"
+					},
+					"value": {
+						"placeholder": "內容"
+					}
+				},
+				"romanizationMatch": {
+					"subtitle": "逐字音譯匹配",
+					"fastTrackTolerance": {
+						"label": "快速通道容差",
+						"description": "主歌詞字與音譯音節的開始時間差在此範圍內時直接配對，單位為毫秒。值越大越寬容，預設 2。"
+					},
+					"minIou": {
+						"label": "最小交並比",
+						"description": "快速通道未命中時，按時間區間重合度取最接近的音譯音節，重合度需達到此比例才會採用。值越小越容易匹配，但可能錯位。預設 10%。"
+					}
+				}
 			},
 			"lyricFont": {
 				"fontFamily": {
@@ -469,7 +498,11 @@
 					"description": "可以看到幀率、幀生成時間、內存佔用（僅Chromium系）等訊息，對效能影響較小。",
 					"label": "顯示效能統計訊息"
 				},
-				"subtitle": "雜項"
+				"subtitle": "雜項",
+				"pauseAfterPlayEnd": {
+					"label": "播放完畢後暫停",
+					"description": "一首歌曲播放結束後不自動切換到下一首，而是停在當前歌曲並暫停播放。此選項優先於循環模式。"
+				}
 			},
 			"smtc": {
 				"enableMediaControls": {
@@ -560,7 +593,9 @@
 	},
 	"playbar": {
 		"playlist": {
-			"title": "當前播放列表"
+			"title": "當前播放列表",
+			"close": "關閉播放列表",
+			"removeSong": "從播放隊列中移除"
 		}
 	},
 	"settings": {
