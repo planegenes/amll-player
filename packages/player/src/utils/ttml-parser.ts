@@ -77,9 +77,24 @@ export interface TTMLParserResult {
 	metadata: [string, string[]][];
 }
 
+/** 逐字音译匹配参数 */
+export interface RomanizationMatchOptions {
+	/** 快速通道容差（毫秒），默认 {@link DEFAULT_FAST_TRACK_TOLERANCE_MS} */
+	fastTrackToleranceMs?: number;
+	/** 最小交并比（0 - 1），默认 {@link DEFAULT_MIN_IOU_THRESHOLD} */
+	minIouThreshold?: number;
+}
+
+/** 快速通道容差的默认值，优先匹配时间戳完全相同的主歌词和音译音节 */
+export const DEFAULT_FAST_TRACK_TOLERANCE_MS = 2;
+
+/** 交并比阈值的默认值，至少有 10% 的面积重合 */
+export const DEFAULT_MIN_IOU_THRESHOLD = 0.1;
+
 export function handleTTMLParsing(
 	lyricStr: string,
 	displayLang?: string,
+	matchOptions?: RomanizationMatchOptions,
 ): TTMLParserResult {
 	const parser = new TTMLParser();
 	const result = parser.parse(lyricStr);
@@ -167,7 +182,7 @@ export function handleTTMLParsing(
 		}
 
 		if (romanWords && amllWords.length > 0) {
-			alignRomanization(amllWords, romanWords);
+			alignRomanization(amllWords, romanWords, matchOptions);
 		}
 
 		return {
@@ -267,14 +282,39 @@ export function handleTTMLParsing(
 	};
 }
 
-function alignRomanization(amllWords: LyricWord[], romanWords: Syllable[]) {
+/** 把可选数值收敛到合法区间，非法值回退到默认值 */
+function clampNumber(
+	value: number | undefined,
+	fallback: number,
+	min: number,
+	max: number,
+): number {
+	if (value === undefined || Number.isNaN(value)) return fallback;
+	return Math.min(max, Math.max(min, value));
+}
+
+function alignRomanization(
+	amllWords: LyricWord[],
+	romanWords: Syllable[],
+	matchOptions?: RomanizationMatchOptions,
+) {
 	let romanSearchStartIndex = 0;
 
-	/** 交并比阈值，至少有 10% 的面积重合 */
-	const MIN_IOU_THRESHOLD = 0.1;
+	/** 交并比阈值，至少有这么多比例的区间面积重合才采用 */
+	const minIouThreshold = clampNumber(
+		matchOptions?.minIouThreshold,
+		DEFAULT_MIN_IOU_THRESHOLD,
+		0,
+		1,
+	);
 
-	/** 快速通道，优先匹配时间戳完全相同的主歌词和音译音节，同时避免浮点数误差 */
-	const FAST_TRACK_TOLERANCE_MS = 2;
+	/** 快速通道，优先匹配开始时间几乎相同的主歌词和音译音节，同时避免浮点数误差 */
+	const fastTrackToleranceMs = clampNumber(
+		matchOptions?.fastTrackToleranceMs,
+		DEFAULT_FAST_TRACK_TOLERANCE_MS,
+		0,
+		Number.MAX_SAFE_INTEGER,
+	);
 
 	for (let i = 0; i < amllWords.length; i++) {
 		const main = amllWords[i];
@@ -288,7 +328,9 @@ function alignRomanization(amllWords: LyricWord[], romanWords: Syllable[]) {
 		while (j < romanWords.length) {
 			const sub = romanWords[j];
 
-			if (Math.abs(main.startTime - sub.startTime) <= FAST_TRACK_TOLERANCE_MS) {
+			if (
+				Math.abs(main.startTime - sub.startTime) <= fastTrackToleranceMs
+			) {
 				main.romanWord = sub.text;
 				romanSearchStartIndex = j + 1;
 				isFastTrackMatched = true;
@@ -325,7 +367,7 @@ function alignRomanization(amllWords: LyricWord[], romanWords: Syllable[]) {
 		if (
 			!isFastTrackMatched &&
 			bestMatchIndex !== -1 &&
-			maxIou >= MIN_IOU_THRESHOLD
+			maxIou >= minIouThreshold
 		) {
 			main.romanWord = romanWords[bestMatchIndex].text;
 			romanSearchStartIndex = bestMatchIndex + 1;

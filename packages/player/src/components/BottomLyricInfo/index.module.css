@@ -2,6 +2,10 @@
 	transition: font-size 0.3s ease;
 }
 
+.customInfoItem {
+	line-height: 1.4;
+}
+
 .textContent {
 	opacity: 0.3;
 	transition: opacity 0.3s ease;

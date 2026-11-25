@@ -10,7 +10,11 @@ import {
 import chalk from "chalk";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { languageAtom } from "../states/appAtoms";
+import {
+	languageAtom,
+	romanizationFastTrackToleranceMsAtom,
+	romanizationMinIouPercentAtom,
+} from "../states/appAtoms";
 import { handleTTMLParsing } from "../utils/ttml-parser";
 
 const LYRIC_LOG_TAG = chalk.bgHex("#FF4444").hex("#FFFFFF")(" LYRIC ");
@@ -81,6 +85,10 @@ export const useLyricParser = (
 	romanLrc?: string,
 ): LyricParserResult => {
 	const displayLanguage = useAtomValue(languageAtom);
+	const romanizationFastTrackToleranceMs = useAtomValue(
+		romanizationFastTrackToleranceMsAtom,
+	);
+	const romanizationMinIouPercent = useAtomValue(romanizationMinIouPercentAtom);
 
 	return useMemo(() => {
 		if (!lyricStr || !format) {
@@ -122,7 +130,10 @@ export const useLyricParser = (
 					break;
 				}
 				case "ttml": {
-					const ttmlResult = handleTTMLParsing(lyricStr, displayLanguage);
+					const ttmlResult = handleTTMLParsing(lyricStr, displayLanguage, {
+						fastTrackToleranceMs: romanizationFastTrackToleranceMs,
+						minIouThreshold: romanizationMinIouPercent / 100,
+					});
 					parsedLyricLines = ttmlResult.lines;
 					parsedMetadata = ttmlResult.metadata;
 					console.log(LYRIC_LOG_TAG, "解析出 TTML 歌词", ttmlResult);
@@ -196,5 +207,13 @@ export const useLyricParser = (
 			console.warn("解析歌词时出现错误", e);
 			return { lyricLines: [], hasLyrics: false, metadata: [] };
 		}
-	}, [lyricStr, format, translatedLrc, romanLrc, displayLanguage]);
+	}, [
+		lyricStr,
+		format,
+		translatedLrc,
+		romanLrc,
+		displayLanguage,
+		romanizationFastTrackToleranceMs,
+		romanizationMinIouPercent,
+	]);
 };

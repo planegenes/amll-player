@@ -12,7 +12,7 @@ import { useCursorAutoHide } from "../../utils/useCursorAutoHide.ts";
 import { useTitlebarAutoHide } from "../../utils/useTitlebarAutoHide.ts";
 import { AMLLContextMenuContent } from "../AMLLContextMenu/index.tsx";
 import { AudioQualityDialog } from "../AudioQualityDialog/index.tsx";
-import { BottomLyricInfo } from "../BottomLyricInfo";
+import { BottomCustomInfo, BottomLyricInfo } from "../BottomLyricInfo";
 import { RecordPanel } from "../RecordPanel/index.tsx";
 import styles from "./index.module.css";
 import "@applemusic-like-lyrics/core/style.css";
@@ -67,7 +67,12 @@ export const AMLLWrapper: FC = () => {
 						<PrebuiltLyricPlayer
 							id="amll-lyric-player"
 							style={{ width: "100%", height: "100%" }}
-							bottomLineSlot={<BottomLyricInfo />}
+							bottomLineSlot={
+								<>
+									<BottomLyricInfo />
+									<BottomCustomInfo />
+								</>
+							}
 							optimizeOptions={optimizeOptions}
 						/>
 						{cursorHidden && (

@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import {
 	BottomLyricDisplayMode,
 	bottomLyricDisplayModeAtom,
+	CustomBottomInfoType,
+	customBottomInfoItemsAtom,
 	currentLyricAuthorsAtom,
 	currentSongWritersAtom,
 } from "../../states/appAtoms";
@@ -118,6 +120,51 @@ export const BottomLyricInfo: FC = () => {
 			}}
 		>
 			{displayContent}
+		</div>
+	);
+};
+
+/**
+ * 自定义显示信息
+ *
+ * 渲染在底部信息之后，每个条目独占一行，字体尺寸与底部信息保持一致
+ */
+export const BottomCustomInfo: FC = () => {
+	const { t } = useTranslation();
+	const items = useAtomValue(customBottomInfoItemsAtom);
+	const lyricSizePreset = useAtomValue(lyricSizePresetAtom);
+
+	const visibleItems = useMemo(
+		() =>
+			items.filter((item) =>
+				item.type === CustomBottomInfoType.KeyValue
+					? item.key.trim() !== "" || item.value.trim() !== ""
+					: item.value.trim() !== "",
+			),
+		[items],
+	);
+
+	if (visibleItems.length === 0) return null;
+
+	return (
+		<div
+			className={styles.bottomInfo}
+			style={{
+				fontSize: getBottomInfoFontSize(lyricSizePreset),
+			}}
+		>
+			{visibleItems.map((item) => (
+				<div key={item.id} className={styles.customInfoItem}>
+					{item.type === CustomBottomInfoType.KeyValue &&
+						item.key.trim() !== "" && (
+							<span className={styles.textContent}>
+								<strong>{item.key}</strong>
+								{t("bottom_lyric.customInfoSeparator", "：")}
+							</span>
+						)}
+					<span className={styles.textContent}>{item.value}</span>
+				</div>
+			))}
 		</div>
 	);
 };
