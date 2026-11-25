@@ -6,6 +6,7 @@ import {
 } from "@applemusic-like-lyrics/react-full";
 import { atom, type createStore, type PrimitiveAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { pauseAfterPlayEndAtom } from "../states/appAtoms.ts";
 import type { Song } from "./db-client.ts";
 import { db } from "./db-client.ts";
 import { emitAudioThread } from "./player.ts";
@@ -85,6 +86,8 @@ export class PlayQueueManager {
 	private repeatMode: RepeatMode = RepeatMode.Off;
 	private shuffleActive = false;
 	private playlistId: number | null = null;
+	/** 上一次自然播放结束时是否停在了队列末尾（暂停但未切歌） */
+	private endPaused = false;
 
 	constructor(store: JotaiStore) {
 		this.store = store;
@@ -137,6 +140,7 @@ export class PlayQueueManager {
 	private playSongAt(index: number): void {
 		if (index < 0 || index >= this.playList.length) return;
 		this.currentIndex = index;
+		this.endPaused = false;
 		this.syncToAtoms();
 		const song = this.playList[index];
 		emitAudioThread("playAudio", {
@@ -228,12 +232,20 @@ export class PlayQueueManager {
 
 	/**
 	 * 歌曲自然播放结束时调用
+	 * - 开启「播放完毕后暂停」：不切歌，直接暂停当前歌曲（优先于所有循环模式）
 	 * - 单曲循环：重播当前歌曲
 	 * - 顺序/随机：播放下一首
 	 * - 列表播放完毕（非循环）：停止
 	 */
 	advanceForAutoEnd(): void {
 		if (this.playList.length === 0) return;
+
+		if (this.store.get(pauseAfterPlayEndAtom)) {
+			// 停在当前歌曲的末尾，不切歌
+			this.endPaused = true;
+			emitAudioThread("pauseAudio");
+			return;
+		}
 
 		if (this.repeatMode === RepeatMode.One) {
 			this.playSongAt(this.currentIndex);
@@ -249,11 +261,27 @@ export class PlayQueueManager {
 			}
 
 			// RepeatMode.Off
+			this.endPaused = true;
 			emitAudioThread("pauseAudio");
 			return;
 		}
 
 		this.playSongAt(nextIndex);
+	}
+
+	/**
+	 * 自然播放结束后是否处于「停在末尾」的暂停状态
+	 *
+	 * 此状态下播放器已释放音频流，此时请求播放应当从头重播当前歌曲。
+	 */
+	isEndPaused(): boolean {
+		return this.endPaused;
+	}
+
+	/** 从头重播当前歌曲（用于停在末尾的暂停状态下请求播放） */
+	replayCurrentSong(): void {
+		if (this.currentIndex < 0) return;
+		this.playSongAt(this.currentIndex);
 	}
 	//#endregion
 

@@ -429,6 +429,11 @@ export const LocalMusicContext: FC = () => {
 		store.set(
 			onPlayOrResumeAtom,
 			toEmit(() => {
+				if (queueManager.isEndPaused()) {
+					// 自然播放结束后停在末尾时，音频流已被释放，直接从头重播当前歌曲
+					queueManager.replayCurrentSong();
+					return;
+				}
 				emitAudioThread("resumeOrPauseAudio");
 			}),
 		);
