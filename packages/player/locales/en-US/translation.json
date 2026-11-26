@@ -73,8 +73,8 @@
 		}
 	},
 	"bottom_lyric": {
-		"lyricAuthor": "Lyrics by:",
-		"songWriter": "Written by:",
+		"lyricAuthor": "Lyrics by",
+		"songWriter": "Written by",
 		"customInfoSeparator": ": "
 	},
 	"common": {
@@ -384,6 +384,10 @@
 				"subtitle": "Lyrics Page Background Type"
 			},
 			"lyricContent": {
+				"bottomLyricAuthorLabel": {
+					"description": "Name shown for the \"Lyrics by\" key in the bottom lyric info. Leave empty to use the default name.",
+					"label": "Lyric Author Field Label"
+				},
 				"bottomLyricMode": {
 					"description": "Control the display of song writers and lyric authors information at the bottom of the lyrics.",
 					"label": "Bottom Lyric Info Display",
@@ -394,6 +398,10 @@
 						"preferLyricAuthors": "Prefer Lyric Authors",
 						"preferSongWriters": "Prefer Song Writers"
 					}
+				},
+				"bottomLyricWriterLabel": {
+					"description": "Name shown for the \"Written by\" key in the bottom lyric info. Leave empty to use the default name.",
+					"label": "Song Writer Field Label"
 				},
 				"enableLyricRomanLine": {
 					"label": "Show Romanized Translation"

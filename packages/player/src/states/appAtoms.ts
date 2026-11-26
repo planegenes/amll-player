@@ -183,6 +183,26 @@ export const currentLyricAuthorsAtom = atom<string[]>([]);
 
 export const currentSongWritersAtom = atom<string[]>([]);
 
+/**
+ * 歌词底部信息里「歌词作者」字段显示的名称
+ *
+ * 仅影响歌词页底部的键名文本，不会修改歌曲或歌词数据本身。留空时回退到默认名称。
+ */
+export const bottomLyricAuthorLabelAtom = atomWithStorage(
+	"amll-player.bottomLyricAuthorLabel",
+	"歌词作者",
+);
+
+/**
+ * 歌词底部信息里「创作者」字段显示的名称
+ *
+ * 仅影响歌词页底部的键名文本，不会修改歌曲或歌词数据本身。留空时回退到默认名称。
+ */
+export const bottomLyricWriterLabelAtom = atomWithStorage(
+	"amll-player.bottomLyricWriterLabel",
+	"创作者",
+);
+
 /** 自定义显示信息的类型 */
 export enum CustomBottomInfoType {
 	/** 普通文本，仅显示一段内容 */

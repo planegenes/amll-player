@@ -73,8 +73,8 @@
 		}
 	},
 	"bottom_lyric": {
-		"lyricAuthor": "歌词作者：",
-		"songWriter": "创作者：",
+		"lyricAuthor": "歌词作者",
+		"songWriter": "创作者",
 		"customInfoSeparator": ": "
 	},
 	"common": {

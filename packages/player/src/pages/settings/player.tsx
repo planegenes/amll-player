@@ -75,7 +75,9 @@ import { router } from "../../router.tsx";
 import {
 	availableLanguagesAtom,
 	BottomLyricDisplayMode,
+	bottomLyricAuthorLabelAtom,
 	bottomLyricDisplayModeAtom,
+	bottomLyricWriterLabelAtom,
 	CustomBottomInfoType,
 	type CustomBottomInfoItem,
 	customBottomInfoItemsAtom,
@@ -151,6 +153,24 @@ const SwitchSettings: FC<
 	return (
 		<SettingEntry label={label} description={description}>
 			<Switch checked={value} onCheckedChange={setValue} />
+		</SettingEntry>
+	);
+};
+
+/** 文本类型的设置项：输入内容直接写入 atom，留空时的语义由使用方决定 */
+const TextSettings: FC<
+	{ configAtom: WritableAtom<string, [string], void>; placeholder?: string } &
+		React.ComponentProps<typeof SettingEntry>
+> = ({ label, description, configAtom, placeholder }) => {
+	const [value, setValue] = useAtom(configAtom);
+	return (
+		<SettingEntry label={label} description={description}>
+			<TextField.Root
+				style={{ minWidth: "12em", flex: "1 1 12em" }}
+				placeholder={placeholder}
+				value={value}
+				onChange={(e) => setValue(e.currentTarget.value)}
+			/>
 		</SettingEntry>
 	);
 };
@@ -758,6 +778,30 @@ const LyricContentSettings = () => {
 					</Select.Content>
 				</Select.Root>
 			</SettingEntry>
+			<TextSettings
+				label={t(
+					"page.settings.lyricContent.bottomLyricAuthorLabel.label",
+					"歌词作者字段显示名称",
+				)}
+				description={t(
+					"page.settings.lyricContent.bottomLyricAuthorLabel.description",
+					"歌词底部信息中「歌词作者」这一键名要显示的名称，留空则使用默认名称。",
+				)}
+				configAtom={bottomLyricAuthorLabelAtom}
+				placeholder={t("bottom_lyric.lyricAuthor", "歌词作者")}
+			/>
+			<TextSettings
+				label={t(
+					"page.settings.lyricContent.bottomLyricWriterLabel.label",
+					"创作者字段显示名称",
+				)}
+				description={t(
+					"page.settings.lyricContent.bottomLyricWriterLabel.description",
+					"歌词底部信息中「创作者」这一键名要显示的名称，留空则使用默认名称。",
+				)}
+				configAtom={bottomLyricWriterLabelAtom}
+				placeholder={t("bottom_lyric.songWriter", "创作者")}
+			/>
 			<CustomBottomInfoSettings />
 		</>
 	);

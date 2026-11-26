@@ -7,7 +7,9 @@ import { type FC, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	BottomLyricDisplayMode,
+	bottomLyricAuthorLabelAtom,
 	bottomLyricDisplayModeAtom,
+	bottomLyricWriterLabelAtom,
 	CustomBottomInfoType,
 	customBottomInfoItemsAtom,
 	currentLyricAuthorsAtom,
@@ -40,6 +42,12 @@ export const BottomLyricInfo: FC = () => {
 	const lyricAuthors = useAtomValue(currentLyricAuthorsAtom);
 	const songWriters = useAtomValue(currentSongWritersAtom);
 	const lyricSizePreset = useAtomValue(lyricSizePresetAtom);
+	const authorLabel = useAtomValue(bottomLyricAuthorLabelAtom);
+	const writerLabel = useAtomValue(bottomLyricWriterLabelAtom);
+
+	// 键名文本可以在设置里自定义，留空时回退到默认的本地化名称
+	const authorTitle = `${authorLabel.trim() || t("bottom_lyric.lyricAuthor", "歌词作者")}${t("bottom_lyric.customInfoSeparator", "：")}`;
+	const writerTitle = `${writerLabel.trim() || t("bottom_lyric.songWriter", "创作者")}${t("bottom_lyric.customInfoSeparator", "：")}`;
 
 	const displayContent = useMemo(() => {
 		if (mode === BottomLyricDisplayMode.None) {
@@ -52,7 +60,7 @@ export const BottomLyricInfo: FC = () => {
 		const renderLyrics = () => (
 			<>
 				<span className={styles.textContent}>
-					<strong>{t("bottom_lyric.lyricAuthor", "歌词作者：")}</strong>
+					<strong>{authorTitle}</strong>
 				</span>
 				{lyricAuthors.map((author, index) => (
 					<span key={`${author}-${index}`}>
@@ -75,7 +83,7 @@ export const BottomLyricInfo: FC = () => {
 		const renderWriters = () => (
 			<>
 				<span className={styles.textContent}>
-					<strong>{t("bottom_lyric.songWriter", "创作者：")}</strong>
+					<strong>{writerTitle}</strong>
 				</span>
 				{songWriters.map((writer, index) => (
 					<span key={`${writer}-${index}`}>
@@ -108,7 +116,7 @@ export const BottomLyricInfo: FC = () => {
 			default:
 				return null;
 		}
-	}, [mode, lyricAuthors, songWriters, t]);
+	}, [mode, lyricAuthors, songWriters, t, authorTitle, writerTitle]);
 
 	if (!displayContent) return null;
 
