@@ -42,17 +42,21 @@
 		background-color: var(--playlist-item-active-bg);
 	}
 
-	.removeButton {
+	.actionButton {
 		flex-shrink: 0;
 		opacity: 0.45;
 		transition: opacity 0.2s ease;
 
-		&:hover {
+		&:hover:not(:disabled) {
 			opacity: 1;
+		}
+
+		&:disabled {
+			opacity: 0.2;
 		}
 	}
 
-	&:hover .removeButton {
+	&:hover .actionButton:not(:disabled) {
 		opacity: 0.85;
 	}
 

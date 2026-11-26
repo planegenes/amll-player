@@ -1,5 +1,9 @@
 import { musicPlayingAtom } from "@applemusic-like-lyrics/react-full";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import {
+	ArrowDownIcon,
+	ArrowUpIcon,
+	Cross2Icon,
+} from "@radix-ui/react-icons";
 import {
 	Avatar,
 	Flex,
@@ -65,8 +69,10 @@ const PlaylistSongItem: FC<
 	{
 		song: Song;
 		index: number;
+		/** 队列总长度，用于判断下移按钮是否到达末尾 */
+		total: number;
 	} & HTMLProps<HTMLDivElement>
-> = ({ song, className, index, ...props }) => {
+> = ({ song, className, index, total, ...props }) => {
 	const { t } = useTranslation();
 	const playlistIndex = useAtomValue(queueCurrentIndexAtom);
 	const queueManager = useAtomValue(queueManagerAtom);
@@ -106,7 +112,31 @@ const PlaylistSongItem: FC<
 					)}
 				</button>
 				<IconButton
-					className={styles.removeButton}
+					className={styles.actionButton}
+					variant="ghost"
+					color="gray"
+					size="1"
+					disabled={index <= 0}
+					title={t("playbar.playlist.moveUp", "上移一位")}
+					aria-label={t("playbar.playlist.moveUp", "上移一位")}
+					onClick={() => queueManager?.moveSong(index, index - 1)}
+				>
+					<ArrowUpIcon />
+				</IconButton>
+				<IconButton
+					className={styles.actionButton}
+					variant="ghost"
+					color="gray"
+					size="1"
+					disabled={index >= total - 1}
+					title={t("playbar.playlist.moveDown", "下移一位")}
+					aria-label={t("playbar.playlist.moveDown", "下移一位")}
+					onClick={() => queueManager?.moveSong(index, index + 1)}
+				>
+					<ArrowDownIcon />
+				</IconButton>
+				<IconButton
+					className={styles.actionButton}
 					variant="ghost"
 					color="gray"
 					size="1"
@@ -212,6 +242,7 @@ export const NowPlaylistCard: FC<FlexProps & { onClose?: () => void }> = ({
 								}}
 								song={song}
 								index={virtualItem.index}
+								total={playlist.length}
 							/>
 						);
 					})}

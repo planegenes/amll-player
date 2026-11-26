@@ -598,7 +598,9 @@
 			"title": "Current Playlist",
 			"close": "Close playlist",
 			"removeSong": "Remove from play queue",
-			"playingIndicator": "Now playing"
+			"playingIndicator": "Now playing",
+			"moveUp": "Move up",
+			"moveDown": "Move down"
 		}
 	},
 	"settings": {

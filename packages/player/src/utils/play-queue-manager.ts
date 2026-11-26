@@ -338,6 +338,46 @@ export class PlayQueueManager {
 
 	//#region 队列修改
 	/**
+	 * 将队列中的歌曲移动到新的位置
+	 *
+	 * 非随机模式下同时移动 `originalList` 中的对应项，保证关闭随机播放后顺序一致；
+	 * 无论哪种模式，`currentIndex` 都会跟随被移动的歌曲，保证当前播放指示不漂移。
+	 *
+	 * @param fromIndex 歌曲当前索引
+	 * @param toIndex 目标索引（超出范围或与当前索引相同时不做任何事）
+	 */
+	moveSong(fromIndex: number, toIndex: number): void {
+		const { length } = this.playList;
+		if (fromIndex < 0 || fromIndex >= length) return;
+		if (toIndex < 0 || toIndex >= length) return;
+		if (fromIndex === toIndex) return;
+
+		const [moved] = this.playList.splice(fromIndex, 1);
+		if (!moved) return;
+		this.playList.splice(toIndex, 0, moved);
+
+		if (!this.shuffleActive) {
+			const originalIndex = this.originalList.findIndex(
+				(s) => s.id === moved.id,
+			);
+			if (originalIndex !== -1) {
+				this.originalList.splice(originalIndex, 1);
+				this.originalList.splice(toIndex, 0, moved);
+			}
+		}
+
+		if (this.currentIndex === fromIndex) {
+			this.currentIndex = toIndex;
+		} else if (fromIndex < this.currentIndex && toIndex >= this.currentIndex) {
+			this.currentIndex--;
+		} else if (fromIndex > this.currentIndex && toIndex <= this.currentIndex) {
+			this.currentIndex++;
+		}
+
+		this.syncToAtoms();
+	}
+
+	/**
 	 * 从队列中移除一首歌
 	 */
 	removeSong(songId: string): void {

@@ -598,7 +598,9 @@
 			"title": "当前播放列表",
 			"close": "关闭播放列表",
 			"removeSong": "从播放队列中移除",
-			"playingIndicator": "正在播放"
+			"playingIndicator": "正在播放",
+			"moveUp": "上移一位",
+			"moveDown": "下移一位"
 		}
 	},
 	"settings": {
