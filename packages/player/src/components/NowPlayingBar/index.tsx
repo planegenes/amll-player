@@ -229,6 +229,7 @@ export const NowPlayingBar: FC = () => {
 					</Flex>
 					<IconButton
 						variant="soft"
+						data-amll-playlist-toggle=""
 						onClick={() => setPlaylistOpened((v) => !v)}
 					>
 						<ListBulletIcon />

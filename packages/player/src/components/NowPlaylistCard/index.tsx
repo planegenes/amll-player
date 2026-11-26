@@ -163,6 +163,26 @@ export const NowPlaylistCard: FC<FlexProps & { onClose?: () => void }> = ({
 	const playlistIndex = useAtomValue(queueCurrentIndexAtom);
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const playlistContainerRef = useRef<HTMLDivElement>(null);
+	const cardRef = useRef<HTMLDivElement>(null);
+
+	// 点击卡片外部区域时自动收起
+	useEffect(() => {
+		if (!onClose) return;
+
+		const handlePointerDown = (evt: PointerEvent) => {
+			const target = evt.target;
+			if (!(target instanceof Element)) return;
+			if (cardRef.current?.contains(target)) return;
+			// 播放栏上的列表开关按钮自己处理开关，否则会先被关闭再被点开
+			if (target.closest("[data-amll-playlist-toggle]")) return;
+			onClose();
+		};
+
+		document.addEventListener("pointerdown", handlePointerDown, true);
+		return () => {
+			document.removeEventListener("pointerdown", handlePointerDown, true);
+		};
+	}, [onClose]);
 
 	const rowVirtualizer = useVirtualizer({
 		count: playlist.length,
@@ -188,6 +208,7 @@ export const NowPlaylistCard: FC<FlexProps & { onClose?: () => void }> = ({
 			maxHeight="500px"
 			data-amll-theme={isDarkTheme ? "dark" : "light"}
 			className={classNames(styles.card, className)}
+			ref={cardRef}
 			style={{
 				height: "50vh",
 				width: "max(10vw, 50vh)",
