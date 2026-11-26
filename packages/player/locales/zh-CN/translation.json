@@ -193,8 +193,10 @@
 			},
 			"music": {
 				"dropdown": {
+					"addToPlayQueue": "插入到当前播放列表",
 					"editMusicOverrideData": "编辑歌曲覆盖信息",
 					"playMusic": "播放音乐",
+					"playNext": "下一首播放",
 					"removeFromPlaylist": "从歌单中删除"
 				},
 				"unknownSongName": "未知歌曲 ID {id}"

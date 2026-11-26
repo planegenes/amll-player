@@ -10,11 +10,13 @@ import {
 	Skeleton,
 	Text,
 } from "@radix-ui/themes";
+import { useAtomValue } from "jotai";
 import type { Loadable } from "jotai/vanilla/utils/loadable";
 import { type CSSProperties, forwardRef, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { router } from "../../router.tsx";
+import { queueManagerAtom } from "../../states/appAtoms.ts";
 import { db, type Song } from "../../utils/db-client.ts";
 import { useDbQuery } from "../../utils/use-db-query.ts";
 import { useSongCover } from "../../utils/use-song-cover.ts";
@@ -46,6 +48,10 @@ export const PlaylistSongCard = forwardRef<
 	);
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const queueManager = useAtomValue(queueManagerAtom);
+
+	/** 当前歌曲的数据库记录（未加载完成或不存在时为 undefined） */
+	const queueableSong = song.state === "hasData" ? song.data : undefined;
 
 	return (
 		<Skeleton
@@ -96,6 +102,27 @@ export const PlaylistSongCard = forwardRef<
 								<DropdownMenu.Item onClick={() => onPlayList(songIndex)}>
 									<Trans i18nKey="page.playlist.music.dropdown.playMusic">
 										播放音乐
+									</Trans>
+								</DropdownMenu.Item>
+								<DropdownMenu.Item
+									disabled={!queueableSong}
+									onClick={() => {
+										if (queueableSong) queueManager?.addToQueue(queueableSong);
+									}}
+								>
+									<Trans i18nKey="page.playlist.music.dropdown.addToPlayQueue">
+										插入到当前播放列表
+									</Trans>
+								</DropdownMenu.Item>
+								<DropdownMenu.Item
+									disabled={!queueableSong}
+									onClick={() => {
+										if (queueableSong)
+											queueManager?.insertNextToPlay(queueableSong);
+									}}
+								>
+									<Trans i18nKey="page.playlist.music.dropdown.playNext">
+										下一首播放
 									</Trans>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item onClick={() => navigate(`/song/${songId}`)}>

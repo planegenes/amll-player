@@ -193,8 +193,10 @@
 			},
 			"music": {
 				"dropdown": {
+					"addToPlayQueue": "Add to Play Queue",
 					"editMusicOverrideData": "Edit Track Override Data",
 					"playMusic": "Play",
+					"playNext": "Play Next",
 					"removeFromPlaylist": "Delete from Playlist"
 				},
 				"unknownSongName": "Unknown Music ID {id}"

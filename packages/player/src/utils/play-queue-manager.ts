@@ -205,6 +205,22 @@ export class PlayQueueManager {
 
 		this.syncToAtoms();
 	}
+
+	/**
+	 * 将歌曲插入到当前播放歌曲之后（即「下一首播放」）
+	 *
+	 * 队列为空或尚未开始播放时直接加入队列；已在队列中的歌曲不重复添加。
+	 */
+	insertNextToPlay(song: Song): void {
+		if (this.originalList.some((s) => s.id === song.id)) return;
+
+		this.originalList.push(song);
+
+		const insertAt = this.currentIndex >= 0 ? this.currentIndex + 1 : 0;
+		this.playList.splice(insertAt, 0, song);
+
+		this.syncToAtoms();
+	}
 	//#endregion
 
 	//#region 播放控制
