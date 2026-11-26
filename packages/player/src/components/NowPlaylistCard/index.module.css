@@ -1,4 +1,6 @@
 .card {
+	/* 队列条目之间的间距，与 index.tsx 中的 QUEUE_ITEM_GAP 保持对应 */
+	--queue-item-gap: 4px;
 	border-radius: var(--radius-4);
 	border: 1px solid var(--gray-a6);
 	background-color: var(--playlist-card-bg);
@@ -23,10 +25,14 @@
 	gap: var(--space-1);
 	box-sizing: border-box;
 	padding: 0 var(--space-2) 0 0;
-	height: calc(var(--space-2) * 2 + 50px);
+	/* 行高由虚拟列表的 QUEUE_ROW_HEIGHT 提供，这里扣掉条目间距，
+	   保证相邻条目的 hover 背景之间有真实间距而不是相互重叠 */
+	height: calc(100% - var(--queue-item-gap));
 	width: 100%;
 	max-width: 100%;
 	overflow: hidden;
+	border-radius: var(--radius-3);
+	transition: background-color 0.15s ease;
 
 	&:hover {
 		background-color: var(--playlist-item-hover-bg);

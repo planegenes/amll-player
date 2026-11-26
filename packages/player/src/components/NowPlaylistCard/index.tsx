@@ -49,6 +49,18 @@ const WaveformIndicator: FC<{ playing: boolean }> = ({ playing }) => {
 	);
 };
 
+/**
+ * 队列条目本身的视觉高度（不含条目间距），需与 index.module.css 中
+ * `.playlistSongItem` 的计算结果保持一致
+ */
+const QUEUE_ITEM_HEIGHT = 66;
+
+/** 条目之间的间距，对应 CSS 变量 `--queue-item-gap` */
+const QUEUE_ITEM_GAP = 4;
+
+/** 虚拟列表的单行高度，必须等于条目高度 + 间距，否则条目会溢出自身的行盒 */
+const QUEUE_ROW_HEIGHT = QUEUE_ITEM_HEIGHT + QUEUE_ITEM_GAP;
+
 const PlaylistSongItem: FC<
 	{
 		song: Song;
@@ -125,7 +137,7 @@ export const NowPlaylistCard: FC<FlexProps & { onClose?: () => void }> = ({
 	const rowVirtualizer = useVirtualizer({
 		count: playlist.length,
 		getScrollElement: () => playlistContainerRef.current,
-		estimateSize: () => 55,
+		estimateSize: () => QUEUE_ROW_HEIGHT,
 		overscan: 5,
 	});
 
