@@ -106,10 +106,16 @@ export const showStatJSFrameAtom = atomWithStorage(
  *
  * 开启后一首歌曲自然播放结束时不会切换到下一首，而是停留在当前歌曲并暂停播放；
  * 该行为优先于循环模式，关闭后恢复原有的循环模式行为。
+ *
+ * 该设置由播放队列管理器在 React 之外直接读取，因此必须开启 `getOnInit`，
+ * 否则在没有任何组件订阅该 atom 时（例如刚启动、设置页尚未挂载）读到的永远是
+ * 初始值 `false`，表现为「只有手动切换过一次开关才生效」。
  */
 export const pauseAfterPlayEndAtom = atomWithStorage(
 	"amll-player.pauseAfterPlayEnd",
 	false,
+	undefined,
+	{ getOnInit: true },
 );
 
 export const autoDarkModeAtom = atom(true);
