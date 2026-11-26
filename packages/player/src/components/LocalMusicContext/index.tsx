@@ -144,6 +144,8 @@ export const FFTToLowPassContext: FC = () => {
 const MusicQualityTagText: FC = () => {
 	const { t } = useTranslation();
 	const musicQuality = useAtomValue<MusicQualityState>(musicQualityAtom);
+	// 应用侧写入的音质状态额外带有位深字段（库里的 MusicQualityState 未声明）
+	const qualityState = musicQuality as AudioQualityState;
 	const setMusicQualityTag = useSetAtom(musicQualityTagAtom);
 
 	useLayoutEffect(() => {
@@ -154,7 +156,10 @@ const MusicQualityTagText: FC = () => {
 			case AudioQualityType.Lossless:
 				return setMusicQualityTag({
 					tagIcon: true,
-					tagText: t("amll.qualityTag.lossless", "无损"),
+					tagText:
+						getLosslessTier(qualityState) === "hi-res"
+							? t("amll.qualityTag.hiRes", "Hi-Res 无损")
+							: t("amll.qualityTag.lossless", "无损"),
 					isDolbyAtmos: false,
 				});
 
@@ -175,7 +180,7 @@ const MusicQualityTagText: FC = () => {
 			default:
 				return setMusicQualityTag(null);
 		}
-	}, [t, musicQuality, setMusicQualityTag]);
+	}, [t, musicQuality, qualityState, setMusicQualityTag]);
 
 	return null;
 };
@@ -639,6 +644,48 @@ export const LocalMusicContext: FC = () => {
 	);
 };
 
+/**
+ * 应用侧写入的音质状态
+ *
+ * 比库里的 {@link MusicQualityState} 多出位深字段，这两个字段虽然不会被库读取，
+ * 但会被本文件内的音质分级与标签文案使用。
+ */
+type AudioQualityState = MusicQualityState & {
+	bitsPerCodedSample: number;
+	bitsPerSample: number;
+};
+
+/** 可以被判定为无损的音频编码 */
+const LOSSLESS_CODECS = ["flac", "alac", "ape", "wav", "aiff"];
+
+/** 无损音频的细分档位 */
+type LosslessTier = "lossless" | "hi-res" | "hi-res-lossless";
+
+/** 判断音频编码是否属于无损编码 */
+function isLosslessCodec(codec: string): boolean {
+	return LOSSLESS_CODECS.includes(codec.toLowerCase());
+}
+
+/**
+ * 划分无损音频的档位
+ *
+ * - `hi-res-lossless`：严格 Hi-Res 标准，采样率 ≥ 96kHz 且位深 ≥ 24bit
+ * - `hi-res`：广义 Hi-Res 标准（JAS/CEA），采样率 ≥ 48kHz 或位深 > 16bit
+ * - `lossless`：CD 规格（或以下）的无损
+ */
+function getLosslessTier(
+	quality: Pick<AudioQualityState, "sampleRate" | "bitsPerSample">,
+): LosslessTier {
+	const { sampleRate, bitsPerSample } = quality;
+	if (sampleRate >= 96000 && bitsPerSample >= 24) {
+		return "hi-res-lossless";
+	}
+	if (sampleRate >= 48000 || bitsPerSample > 16) {
+		return "hi-res";
+	}
+	return "lossless";
+}
+
 function processAudioQuality(
 	quality: AudioQuality | undefined,
 ): MusicQualityState {
@@ -651,35 +698,18 @@ function processAudioQuality(
 		codec: quality?.codec ?? "unknown",
 	};
 
-	if (definiteQuality.codec === "unknown") {
+	if (!isLosslessCodec(definiteQuality.codec)) {
 		return {
 			...definiteQuality,
 			type: AudioQualityType.None,
 		};
 	}
 
-	const isLosslessCodec = ["flac", "alac", "ape", "wav", "aiff"].includes(
-		definiteQuality.codec.toLowerCase(),
-	);
-
-	if (isLosslessCodec) {
-		const sampleRate = definiteQuality.sampleRate;
-		const bitsPerSample = definiteQuality.bitsPerSample;
-
-		if (sampleRate >= 96000 && bitsPerSample >= 24) {
-			return {
-				...definiteQuality,
-				type: AudioQualityType.HiResLossless,
-			};
-		}
-		return {
-			...definiteQuality,
-			type: AudioQualityType.Lossless,
-		};
-	}
-
 	return {
 		...definiteQuality,
-		type: AudioQualityType.None,
+		type:
+			getLosslessTier(definiteQuality) === "hi-res-lossless"
+				? AudioQualityType.HiResLossless
+				: AudioQualityType.Lossless,
 	};
 }

@@ -51,6 +51,7 @@
 		},
 		"openMenuViaRightClick": "Please right-click anywhere to open menu",
 		"qualityTag": {
+			"hiRes": "Hi-Res",
 			"hires": "Hi-Res Lossless",
 			"lossless": "Lossless"
 		},

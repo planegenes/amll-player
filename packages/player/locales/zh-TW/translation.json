@@ -51,6 +51,7 @@
 		},
 		"openMenuViaRightClick": "請右鍵歌詞介面任意位置打開目錄哦！",
 		"qualityTag": {
+			"hiRes": "Hi-Res 保真壓縮",
 			"hires": "高解析度保真壓縮",
 			"lossless": "保真壓縮"
 		},

@@ -51,6 +51,7 @@
 		},
 		"openMenuViaRightClick": "Hãy nhấp chuột phải vào bất kỳ chỗ nào trên trang lời bài hát để mở Menu!",
 		"qualityTag": {
+			"hiRes": "Hi-Res 无损",
 			"hires": "高解析度无损",
 			"lossless": "无损"
 		},

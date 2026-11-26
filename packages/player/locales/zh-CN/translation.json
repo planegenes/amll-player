@@ -51,6 +51,7 @@
 		},
 		"openMenuViaRightClick": "请右键歌词页任意位置来打开菜单哦！",
 		"qualityTag": {
+			"hiRes": "Hi-Res 无损",
 			"hires": "高解析度无损",
 			"lossless": "无损"
 		},

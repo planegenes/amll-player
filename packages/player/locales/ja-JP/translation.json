@@ -51,6 +51,7 @@
 		},
 		"openMenuViaRightClick": "歌詞ページの任意の場所を右クリックしてメニューを開きます。",
 		"qualityTag": {
+			"hiRes": "Hi-Res 无损",
 			"hires": "高解析度无损",
 			"lossless": "无损"
 		},
