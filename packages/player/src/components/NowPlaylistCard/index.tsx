@@ -1,4 +1,5 @@
-import { Cross2Icon, PlayIcon } from "@radix-ui/react-icons";
+import { musicPlayingAtom } from "@applemusic-like-lyrics/react-full";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import {
 	Avatar,
 	Flex,
@@ -21,6 +22,33 @@ import {
 } from "../../utils/play-queue-manager.ts";
 import styles from "./index.module.css";
 
+/**
+ * 当前播放歌曲的声纹指示图标
+ *
+ * 播放中时四根竖条循环跳动，暂停时保持静态声纹形状；系统开启
+ * 「减少动态效果」时由 CSS 自动退化为静态。
+ */
+const WaveformIndicator: FC<{ playing: boolean }> = ({ playing }) => {
+	const { t } = useTranslation();
+
+	return (
+		<span
+			className={classNames(
+				styles.waveform,
+				playing && styles.waveformPlaying,
+			)}
+			role="img"
+			aria-label={t("playbar.playlist.playingIndicator", "正在播放")}
+			title={t("playbar.playlist.playingIndicator", "正在播放")}
+		>
+			<span />
+			<span />
+			<span />
+			<span />
+		</span>
+	);
+};
+
 const PlaylistSongItem: FC<
 	{
 		song: Song;
@@ -30,6 +58,7 @@ const PlaylistSongItem: FC<
 	const { t } = useTranslation();
 	const playlistIndex = useAtomValue(queueCurrentIndexAtom);
 	const queueManager = useAtomValue(queueManagerAtom);
+	const musicPlaying = useAtomValue(musicPlayingAtom);
 
 	const cover = song.coverPath
 		? song.coverPath.startsWith("http://") || song.coverPath.startsWith("https://")
@@ -60,7 +89,9 @@ const PlaylistSongItem: FC<
 						<div className={styles.name}>{name}</div>
 						<div className={styles.artists}>{artists}</div>
 					</div>
-					{playlistIndex === index && <PlayIcon />}
+					{playlistIndex === index && (
+						<WaveformIndicator playing={musicPlaying} />
+					)}
 				</button>
 				<IconButton
 					className={styles.removeButton}

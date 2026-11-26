@@ -597,7 +597,8 @@
 		"playlist": {
 			"title": "当前播放列表",
 			"close": "关闭播放列表",
-			"removeSong": "从播放队列中移除"
+			"removeSong": "从播放队列中移除",
+			"playingIndicator": "正在播放"
 		}
 	},
 	"settings": {

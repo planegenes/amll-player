@@ -597,7 +597,8 @@
 		"playlist": {
 			"title": "Current Playlist",
 			"close": "Close playlist",
-			"removeSong": "Remove from play queue"
+			"removeSong": "Remove from play queue",
+			"playingIndicator": "Now playing"
 		}
 	},
 	"settings": {
