@@ -11,9 +11,9 @@ import {
 	bottomLyricDisplayModeAtom,
 	bottomLyricWriterLabelAtom,
 	CustomBottomInfoType,
-	customBottomInfoItemsAtom,
 	currentLyricAuthorsAtom,
 	currentSongWritersAtom,
+	customBottomInfoItemsAtom,
 } from "../../states/appAtoms";
 import styles from "./index.module.css";
 

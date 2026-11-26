@@ -1,9 +1,5 @@
 import { musicPlayingAtom } from "@applemusic-like-lyrics/react-full";
-import {
-	ArrowDownIcon,
-	ArrowUpIcon,
-	Cross2Icon,
-} from "@radix-ui/react-icons";
+import { ArrowDownIcon, ArrowUpIcon, Cross2Icon } from "@radix-ui/react-icons";
 import {
 	Avatar,
 	Flex,
@@ -37,10 +33,7 @@ const WaveformIndicator: FC<{ playing: boolean }> = ({ playing }) => {
 
 	return (
 		<span
-			className={classNames(
-				styles.waveform,
-				playing && styles.waveformPlaying,
-			)}
+			className={classNames(styles.waveform, playing && styles.waveformPlaying)}
 			role="img"
 			aria-label={t("playbar.playlist.playingIndicator", "正在播放")}
 			title={t("playbar.playlist.playingIndicator", "正在播放")}
