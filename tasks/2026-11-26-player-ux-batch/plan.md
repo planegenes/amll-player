@@ -19,6 +19,7 @@
 | 5 | 设置：歌词作者/创作者显示名称可自定义 | 已完成 | `feat(player): …` |
 | 6 | 设置：播放控制组件类型拆成上下两个子项 | 已跳过（见下） | — |
 | 7 | 音质检测：新增广义标准 Hi-Res 档 | 已完成 | `feat(player): …` |
+| 8 | 追加：当前播放列表支持同一首歌重复出现 | 已完成 | `feat(player): …` |
 
 ---
 
@@ -156,6 +157,34 @@
 **涉及文件**：`components/LocalMusicContext/index.tsx`、`locales/*/translation.json`
 
 **验证**：分别用 44.1kHz/16bit、48kHz/16bit、44.1kHz/24bit、96kHz/24bit 的无损文件测试，标签依次为「无损」「Hi-Res 无损」「Hi-Res 无损」「高解析度无损」。
+
+---
+
+## 8. 追加：当前播放列表支持同一首歌重复出现
+
+**现状**：`addToQueue` 与 `insertNextToPlay` 都会先判断「队列里是否已有同 id 歌曲」并静默跳过；
+删除、移动、随机切换的定位也全部依赖 `songId` 在队列中唯一。
+
+**方案**：
+- `addToQueue` / `insertNextToPlay` 去掉去重，同一首歌可重复入队；
+- 新增 `removeAt(index)` 按位置只移除当前这一份，队列面板的删除按钮改用它；
+- `removeSong(songId)` 保留但语义改为「移除该歌曲的所有副本」，供「从歌单删歌同步队列」使用；
+- `toggleShuffle` 改用「同 id 的第 n 次出现」定位当前歌曲，重复项也能正确跟随；
+- 新增 `findOriginalIndex()` 把 `playList` 下标映射到 `originalList`，`removeAt` 在随机模式下据此同步；
+- `insertNextToPlay` 在非随机模式下改为两个列表同位置插入，维持「非随机时两列表同序」的不变量。
+
+**不变量**：`shuffleActive === false` 时 `playList` 与 `originalList` 顺序一致（`addToQueue`、
+`insertNextToPlay`、`moveSong`、`setQueue`、`toggleShuffle` 均维持该约束）。
+
+**影响面**：`gitnexus_impact` 提示 `toggleShuffle` 为 HIGH（3 个直接调用方、
+影响 `LocalMusicContext` 播放流程），但改动仅限「找回当前歌曲的方式」，签名与随机重建逻辑不变，
+无重复项的队列行为与之前一致。
+
+**涉及文件**：`utils/play-queue-manager.ts`、`components/NowPlaylistCard/index.tsx`
+
+**验证**：同一首歌连续点两次「插入到当前播放列表」→ 队列出现两条；分别删除其中之一 → 只少了对应那一份；
+上移/下移重复项 → 位置正确；开启/关闭随机播放 → 当前播放指示不漂移；
+从歌单删除该歌曲 → 队列中所有副本一并移除。
 
 ---
 

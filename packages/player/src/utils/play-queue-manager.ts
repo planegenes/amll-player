@@ -151,9 +151,60 @@ export class PlayQueueManager {
 		});
 	}
 
-	/** 在 playList 中查找 songId 的索引 */
-	private findInPlayList(songId: string): number {
-		return this.playList.findIndex((s) => s.id === songId);
+	/**
+	 * 取当前歌曲在 playList 中的「同 id 第几次出现」序号
+	 *
+	 * 队列允许同一首歌出现多次，因此定位当前歌曲不能只看 songId，
+	 * 还需要额外记录它是该歌曲的第几个副本。
+	 */
+	private getCurrentOccurrence(): {
+		songId: string;
+		occurrence: number;
+	} | null {
+		const current =
+			this.currentIndex >= 0 ? this.playList[this.currentIndex] : undefined;
+		if (!current) return null;
+
+		let occurrence = 0;
+		for (let i = 0; i < this.currentIndex; i++) {
+			if (this.playList[i]?.id === current.id) occurrence++;
+		}
+		return { songId: current.id, occurrence };
+	}
+
+	/** 在 playList 中查找「指定歌曲的第 n 次出现」的索引 */
+	private findOccurrenceInPlayList(songId: string, occurrence: number): number {
+		let seen = 0;
+		for (let i = 0; i < this.playList.length; i++) {
+			if (this.playList[i]?.id !== songId) continue;
+			if (seen === occurrence) return i;
+			seen++;
+		}
+		return -1;
+	}
+
+	/**
+	 * 把 `playList` 中的下标映射到 `originalList` 中的下标
+	 *
+	 * 两个列表是同一批歌曲的两种顺序，随机播放时位置不一定一致，
+	 * 因此按「同 id 的第 n 次出现」对应，以支持同一首歌重复出现。
+	 */
+	private findOriginalIndex(playIndex: number): number {
+		const target = this.playList[playIndex];
+		if (!target) return -1;
+
+		let occurrence = 0;
+		for (let i = 0; i < playIndex; i++) {
+			if (this.playList[i]?.id === target.id) occurrence++;
+		}
+
+		let seen = 0;
+		for (let i = 0; i < this.originalList.length; i++) {
+			if (this.originalList[i]?.id !== target.id) continue;
+			if (seen === occurrence) return i;
+			seen++;
+		}
+		return -1;
 	}
 	//#endregion
 
@@ -189,10 +240,10 @@ export class PlayQueueManager {
 
 	/**
 	 * 将歌曲添加到队尾
+	 *
+	 * 队列允许同一首歌重复出现，因此这里不做去重。
 	 */
 	addToQueue(song: Song): void {
-		if (this.originalList.some((s) => s.id === song.id)) return;
-
 		this.originalList.push(song);
 
 		if (this.shuffleActive) {
@@ -209,15 +260,23 @@ export class PlayQueueManager {
 	/**
 	 * 将歌曲插入到当前播放歌曲之后（即「下一首播放」）
 	 *
-	 * 队列为空或尚未开始播放时直接加入队列；已在队列中的歌曲不重复添加。
+	 * 队列为空或尚未开始播放时直接加入队列；队列允许同一首歌重复出现，不做去重。
 	 */
 	insertNextToPlay(song: Song): void {
-		if (this.originalList.some((s) => s.id === song.id)) return;
-
-		this.originalList.push(song);
-
 		const insertAt = this.currentIndex >= 0 ? this.currentIndex + 1 : 0;
 		this.playList.splice(insertAt, 0, song);
+
+		if (this.shuffleActive) {
+			// 随机模式下原始顺序与播放顺序无关，追加到原始队列末尾即可
+			this.originalList.push(song);
+		} else {
+			// 非随机模式下两个列表保持同序，插入位置必须一致
+			this.originalList.splice(
+				Math.min(insertAt, this.originalList.length),
+				0,
+				song,
+			);
+		}
 
 		this.syncToAtoms();
 	}
@@ -319,8 +378,8 @@ export class PlayQueueManager {
 	}
 
 	toggleShuffle(): void {
-		const currentSongId =
-			this.currentIndex >= 0 ? this.playList[this.currentIndex]?.id : undefined;
+		// 队列允许同一首歌出现多次，因此要记住当前歌曲是「同 id 的第几个副本」
+		const current = this.getCurrentOccurrence();
 
 		this.shuffleActive = !this.shuffleActive;
 
@@ -330,8 +389,11 @@ export class PlayQueueManager {
 			this.playList = [...this.originalList];
 		}
 
-		if (currentSongId) {
-			const newIndex = this.findInPlayList(currentSongId);
+		if (current) {
+			const newIndex = this.findOccurrenceInPlayList(
+				current.songId,
+				current.occurrence,
+			);
 			if (newIndex !== -1) {
 				this.currentIndex = newIndex;
 			}
@@ -356,7 +418,8 @@ export class PlayQueueManager {
 	/**
 	 * 将队列中的歌曲移动到新的位置
 	 *
-	 * 非随机模式下同时移动 `originalList` 中的对应项，保证关闭随机播放后顺序一致；
+	 * 非随机模式下两个列表顺序一致，按同一组下标同步移动 `originalList`，
+	 * 保证关闭随机播放后顺序一致；随机模式下只调整当前播放顺序。
 	 * 无论哪种模式，`currentIndex` 都会跟随被移动的歌曲，保证当前播放指示不漂移。
 	 *
 	 * @param fromIndex 歌曲当前索引
@@ -373,12 +436,9 @@ export class PlayQueueManager {
 		this.playList.splice(toIndex, 0, moved);
 
 		if (!this.shuffleActive) {
-			const originalIndex = this.originalList.findIndex(
-				(s) => s.id === moved.id,
-			);
-			if (originalIndex !== -1) {
-				this.originalList.splice(originalIndex, 1);
-				this.originalList.splice(toIndex, 0, moved);
+			const [movedOriginal] = this.originalList.splice(fromIndex, 1);
+			if (movedOriginal) {
+				this.originalList.splice(toIndex, 0, movedOriginal);
 			}
 		}
 
@@ -394,18 +454,24 @@ export class PlayQueueManager {
 	}
 
 	/**
-	 * 从队列中移除一首歌
+	 * 从队列中移除指定位置的歌曲
+	 *
+	 * 只移除这一份，不影响同一首歌在队列中的其他副本。
 	 */
-	removeSong(songId: string): void {
-		const removeIndex = this.playList.findIndex((s) => s.id === songId);
-		if (removeIndex === -1) return;
+	removeAt(index: number): void {
+		if (index < 0 || index >= this.playList.length) return;
 
-		this.originalList = this.originalList.filter((s) => s.id !== songId);
-		this.playList.splice(removeIndex, 1);
+		// 先算好原始队列中对应的位置，再开始删除
+		const originalIndex = this.findOriginalIndex(index);
 
-		if (removeIndex < this.currentIndex) {
+		this.playList.splice(index, 1);
+		if (originalIndex !== -1) {
+			this.originalList.splice(originalIndex, 1);
+		}
+
+		if (index < this.currentIndex) {
 			this.currentIndex--;
-		} else if (removeIndex === this.currentIndex) {
+		} else if (index === this.currentIndex) {
 			if (this.playList.length === 0) {
 				this.currentIndex = -1;
 			} else if (this.currentIndex >= this.playList.length) {
@@ -418,6 +484,19 @@ export class PlayQueueManager {
 		}
 
 		this.syncToAtoms();
+	}
+
+	/**
+	 * 从队列中移除一首歌的所有副本
+	 *
+	 * 供「从歌单中删除歌曲」这类需要按歌曲 id 清理队列的场景使用。
+	 */
+	removeSong(songId: string): void {
+		let index = this.playList.findIndex((s) => s.id === songId);
+		while (index !== -1) {
+			this.removeAt(index);
+			index = this.playList.findIndex((s) => s.id === songId);
+		}
 	}
 	//#endregion
 

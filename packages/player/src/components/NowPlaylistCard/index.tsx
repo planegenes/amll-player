@@ -136,7 +136,8 @@ const PlaylistSongItem: FC<
 					title={t("playbar.playlist.removeSong", "从播放队列中移除")}
 					aria-label={t("playbar.playlist.removeSong", "从播放队列中移除")}
 					onClick={() => {
-						queueManager?.removeSong(song.id);
+						// 同一首歌可能在队列里出现多次，只移除当前这一份
+						queueManager?.removeAt(index);
 					}}
 				>
 					<Cross2Icon />
