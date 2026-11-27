@@ -680,6 +680,20 @@ const LyricContentSettings = () => {
 				),
 				value: BottomLyricDisplayMode.PreferSongWriters,
 			},
+			{
+				label: t(
+					"page.settings.lyricContent.bottomLyricMode.menu.preferBothLyricAuthorsFirst",
+					"优先同时显示（歌词作者在上）",
+				),
+				value: BottomLyricDisplayMode.PreferBothLyricAuthorsFirst,
+			},
+			{
+				label: t(
+					"page.settings.lyricContent.bottomLyricMode.menu.preferBothSongWritersFirst",
+					"优先同时显示（创作者在上）",
+				),
+				value: BottomLyricDisplayMode.PreferBothSongWritersFirst,
+			},
 		],
 		[t],
 	);

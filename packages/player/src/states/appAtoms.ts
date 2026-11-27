@@ -171,6 +171,8 @@ export enum BottomLyricDisplayMode {
 	OnlySongWriters = "only-song-writers",
 	PreferLyricAuthors = "prefer-lyric-authors",
 	PreferSongWriters = "prefer-song-writers",
+	PreferBothLyricAuthorsFirst = "prefer-both-lyric-authors-first",
+	PreferBothSongWritersFirst = "prefer-both-song-writers-first",
 }
 
 export const bottomLyricDisplayModeAtom =

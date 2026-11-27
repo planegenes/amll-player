@@ -20,6 +20,7 @@
 | 6 | 设置：播放控制组件类型拆成上下两个子项 | 已跳过（见下） | — |
 | 7 | 音质检测：新增广义标准 Hi-Res 档 | 已完成 | `feat(player): …` |
 | 8 | 追加：当前播放列表支持同一首歌重复出现 | 已完成 | `feat(player): …` |
+| 9 | 追加：歌词底部信息新增两种顺序的「优先同时显示」 | 已完成 | `feat(player): …` |
 
 ---
 
@@ -185,6 +186,27 @@
 **验证**：同一首歌连续点两次「插入到当前播放列表」→ 队列出现两条；分别删除其中之一 → 只少了对应那一份；
 上移/下移重复项 → 位置正确；开启/关闭随机播放 → 当前播放指示不漂移；
 从歌单删除该歌曲 → 队列中所有副本一并移除。
+
+---
+
+## 9. 追加：歌词底部信息新增两种顺序的「优先同时显示」
+
+**现状**：设置 → 歌词内容 → 底部信息是一个下拉，5 个互斥选项，始终只渲染「歌词作者」或「创作者」其中一组。
+
+**方案**：
+- `BottomLyricDisplayMode` 新增 `PreferBothLyricAuthorsFirst`、`PreferBothSongWritersFirst`
+  两个成员（值分别为 `prefer-both-lyric-authors-first`、`prefer-both-song-writers-first`），
+  下拉里排在「优先显示创作者」之后，对应两种上下顺序；
+- 两组信息都存在时，各占一行渲染（复用 `BottomCustomInfo` 的 `.customInfoItem` 样式，行高 1.4），
+  先后由所选模式决定；
+- 只有一组存在时回退到单组显示，与既有「优先」选项的表现一致；
+- 5 个语言补 `menu.preferBothLyricAuthorsFirst` / `menu.preferBothSongWritersFirst` 两个键。
+
+**涉及文件**：`states/appAtoms.ts`、`components/BottomLyricInfo/index.tsx`、
+`pages/settings/player.tsx`、`locales/*/translation.json`
+
+**验证**：两个「优先同时显示」选项分别让歌词作者 / 创作者排在上方，各自都是两行；
+只有歌词作者或只有创作者时只显示一行；切回其他选项行为不变。
 
 ---
 

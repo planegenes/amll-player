@@ -397,7 +397,9 @@
 						"onlyLyricAuthors": "只显示歌词作者",
 						"onlySongWriters": "只显示创作者",
 						"preferLyricAuthors": "优先显示歌词作者",
-						"preferSongWriters": "优先显示创作者"
+						"preferSongWriters": "优先显示创作者",
+						"preferBothLyricAuthorsFirst": "优先同时显示（歌词作者在上）",
+						"preferBothSongWritersFirst": "优先同时显示（创作者在上）"
 					}
 				},
 				"bottomLyricWriterLabel": {

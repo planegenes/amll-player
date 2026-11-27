@@ -397,7 +397,9 @@
 						"onlyLyricAuthors": "Only Lyric Authors",
 						"onlySongWriters": "Only Song Writers",
 						"preferLyricAuthors": "Prefer Lyric Authors",
-						"preferSongWriters": "Prefer Song Writers"
+						"preferSongWriters": "Prefer Song Writers",
+						"preferBothLyricAuthorsFirst": "Prefer Both (Lyric Authors on Top)",
+						"preferBothSongWritersFirst": "Prefer Both (Song Writers on Top)"
 					}
 				},
 				"bottomLyricWriterLabel": {

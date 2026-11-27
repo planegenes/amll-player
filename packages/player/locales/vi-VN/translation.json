@@ -389,7 +389,9 @@
 						"onlyLyricAuthors": "只显示歌词作者",
 						"onlySongWriters": "只显示创作者",
 						"preferLyricAuthors": "优先显示歌词作者",
-						"preferSongWriters": "优先显示创作者"
+						"preferSongWriters": "优先显示创作者",
+						"preferBothLyricAuthorsFirst": "Ưu tiên hiển thị đồng thời (tác giả lời ở trên)",
+						"preferBothSongWritersFirst": "Ưu tiên hiển thị đồng thời (người sáng tác ở trên)"
 					}
 				},
 				"enableLyricRomanLine": {

@@ -389,7 +389,9 @@
 						"onlyLyricAuthors": "只显示歌词作者",
 						"onlySongWriters": "只显示创作者",
 						"preferLyricAuthors": "优先显示歌词作者",
-						"preferSongWriters": "优先显示创作者"
+						"preferSongWriters": "优先显示创作者",
+						"preferBothLyricAuthorsFirst": "優先的に同時表示（歌詞作者が上）",
+						"preferBothSongWritersFirst": "優先的に同時表示（制作者が上）"
 					}
 				},
 				"enableLyricRomanLine": {

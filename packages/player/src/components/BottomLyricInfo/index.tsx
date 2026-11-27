@@ -96,6 +96,17 @@ export const BottomLyricInfo: FC = () => {
 			</>
 		);
 
+		const renderBothGroups = (lyricAuthorsFirst: boolean) => (
+			<>
+				<div className={styles.customInfoItem}>
+					{lyricAuthorsFirst ? renderLyrics() : renderWriters()}
+				</div>
+				<div className={styles.customInfoItem}>
+					{lyricAuthorsFirst ? renderWriters() : renderLyrics()}
+				</div>
+			</>
+		);
+
 		switch (mode) {
 			case BottomLyricDisplayMode.OnlyLyricAuthors:
 				return hasLyrics ? renderLyrics() : null;
@@ -111,6 +122,18 @@ export const BottomLyricInfo: FC = () => {
 			case BottomLyricDisplayMode.PreferSongWriters:
 				if (hasWriters) return renderWriters();
 				if (hasLyrics) return renderLyrics();
+				return null;
+
+			case BottomLyricDisplayMode.PreferBothLyricAuthorsFirst:
+			case BottomLyricDisplayMode.PreferBothSongWritersFirst:
+				// 两组信息都存在时各占一行，先后顺序由模式决定；只有一组时回退到单组显示
+				if (hasLyrics && hasWriters) {
+					return renderBothGroups(
+						mode === BottomLyricDisplayMode.PreferBothLyricAuthorsFirst,
+					);
+				}
+				if (hasLyrics) return renderLyrics();
+				if (hasWriters) return renderWriters();
 				return null;
 
 			default:
