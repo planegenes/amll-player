@@ -1,7 +1,7 @@
 name: 构建 AMLL Player Tauri 多端版本
 
-# 本工作流当前只构建 Windows 版本（x64 + arm64）。
-# Linux、macOS、Android、iOS 的构建配置均以注释形式保留在下方，需要恢复多端构建时
+# 本工作流当前只构建 Windows x64 版本。
+# Windows arm64、Linux、macOS、Android、iOS 的构建配置均以注释形式保留在下方，需要恢复时
 # 直接取消对应注释即可（矩阵条目、以及 build-tauri-android / build-tauri-ios 两个 job）。
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # 仅构建 Windows；其余平台配置以注释保留，取消注释即可恢复
+          # 仅构建 Windows x64；其余平台配置以注释保留，取消注释即可恢复
           #   - platform: ubuntu-latest
           #     args: ""
           #     name: linux
@@ -57,13 +57,13 @@ jobs:
             artifact_name_suffix: windows-x64
             package_extension: zip
             os_runner: windows-latest
-          - platform: windows-latest
-            args: "--target aarch64-pc-windows-msvc"
-            name: windows
-            arch: aarch64
-            artifact_name_suffix: windows-arm64
-            package_extension: zip
-            os_runner: windows-latest
+          #   - platform: windows-latest
+          #     args: "--target aarch64-pc-windows-msvc"
+          #     name: windows
+          #     arch: aarch64
+          #     artifact_name_suffix: windows-arm64
+          #     package_extension: zip
+          #     os_runner: windows-latest
           #   - platform: macos-latest # arm64 二进制包
           #     args: "--target aarch64-apple-darwin"
           #     name: macOS

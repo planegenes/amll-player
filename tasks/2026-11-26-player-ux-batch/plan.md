@@ -10,7 +10,7 @@
 | # | 任务 | 状态 | 提交 |
 |---|------|------|------|
 | 1 | 「播放完毕后暂停」重启/F5 后失效 | 已完成 | `fix(player): …` |
-| 2 | GitHub Action 仅构建 Windows（其余注释保留） | 已完成 | `ci(player): …` |
+| 2 | GitHub Action 仅构建 Windows x64（其余注释保留） | 已完成 | `ci(player): …` |
 | 3.1 | 当前播放列表：播放状态图标改为动态声纹 | 已完成 | `feat(player): …` |
 | 3.2 | 当前播放列表：条目尺寸溢出导致 hover 阴影重叠 | 已完成 | `fix(player): …` |
 | 3.3 | 当前播放列表：上移/下移一格按钮（边缘禁用） | 已完成 | `feat(player): …` |
@@ -37,18 +37,18 @@
 
 ---
 
-## 2. GitHub Action 仅构建 Windows
+## 2. GitHub Action 仅构建 Windows x64
 
 **现状**：`.github/workflows/build-player.yaml` 一个工作流里包含桌面矩阵（linux x64、windows x64、windows arm64、macOS arm64、macOS x64）+ Android + iOS 三个 job。
 
 **方案**：
-- `build-tauri-desktop` 的 `matrix.include` 只保留 `windows-x64`、`windows-arm64`，其余条目用 YAML 注释保留并注明如何恢复；
+- `build-tauri-desktop` 的 `matrix.include` 只保留 `windows-x64`，`windows-arm64` 与其余平台条目一律用 YAML 注释保留并注明如何恢复；
 - Android、iOS 两个 job 整体注释保留（它们只 `needs: clean-pre-release`，注释后不影响其他 job）；
 - 文件头补一段说明注释。原有的 macOS/Linux 条件步骤保持原样（在只跑 Windows 时自然跳过），便于日后一次性取消注释即可恢复多端构建。
 
 **涉及文件**：`.github/workflows/build-player.yaml`
 
-**验证**：推送后 Actions 只出现「构建 Tauri 桌面版本」中两个 Windows 矩阵任务与「删除预发布版本」；本地可用 `actionlint` 或 GitHub 上的 workflow 语法校验。
+**验证**：推送后 Actions 只出现「构建 Tauri 桌面版本」中的一个 Windows x64 矩阵任务与「删除预发布版本」；本地可用 `actionlint` 或 GitHub 上的 workflow 语法校验。
 
 ---
 
